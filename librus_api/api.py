@@ -1,8 +1,9 @@
 import os
 
 import requests
-from dataclasses import dataclass
 import datetime
+
+from librus_api.data_containers import Teacher, Notice, Message
 
 
 def prepare_header(token):
@@ -18,38 +19,6 @@ def api_url(*args):
 
 def remove_escapes(s: str):
     return s.encode('utf-8').decode('unicode-escape')
-
-
-@dataclass
-class Teacher:
-    """Dataclass for representing teachers"""
-    first_name: str
-    last_name: str
-    id: int
-
-
-@dataclass
-class Notice:
-    """Representation of school notice (ogłoszenie)"""
-    start: datetime.datetime
-    end: datetime.datetime
-    time: datetime.datetime
-    subject: str
-    content: str
-    teacher: Teacher
-
-
-@dataclass
-class Message:
-    """Representation of a message. Will handle attachment downloads"""
-    subject: str
-    content: str
-    teacher: Teacher
-    time: datetime.datetime
-    id: int
-    url: str
-    has_attachments: bool
-    details_fetched: bool = False
 
 
 class Librus:
