@@ -1,5 +1,7 @@
 import datetime
+from .api import Librus
 from dataclasses import dataclass
+from collections import namedtuple
 
 
 @dataclass
@@ -31,4 +33,8 @@ class Message:
     id: int
     url: str
     has_attachments: bool
-    details_fetched: bool = False
+
+
+    def download_attachments(self, api: Librus):
+        details =
+
