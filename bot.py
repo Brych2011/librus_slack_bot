@@ -76,7 +76,7 @@ def notice_flow(librus_api: Librus, slack_api: SlackClient, last_notice_time):
             last_notice_time = notice.time
 
             message = f"*Nowe ogłoszenie:*\n{notice.subject}\n" \
-                      f"```{notice.content}```\n\n" \
+                      f"``:`{notice.content}```\n" \
                       f"Autorem jest {notice.teacher.first_name} {notice.teacher.last_name}"
 
             slack_api.rtm_send_message(CHANNEL, message)
