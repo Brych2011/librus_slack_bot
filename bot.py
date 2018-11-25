@@ -2,8 +2,8 @@ import json
 import os
 import time
 
-from librus_api.api import Librus
-from librus_api.data_containers import Notice, Message
+from librus_api import Librus, get_token
+from librus_api import Notice, Message
 
 from dataclasses import dataclass
 from typing import List, Dict
@@ -36,7 +36,7 @@ def archive_notice(notice: Notice, archive_path):
 
 
 def archive_lucky_number(number, archive_path):
-    with open(archive_path + "LuckyNumbers", 'a') as file:
+    with open(archive_path + "/LuckyNumbers", 'a+') as file:
         file.write(f"{datetime.datetime.now().strftime('%Y-%m-%d')}: {number}\n")
 
 
@@ -81,7 +81,7 @@ def notice_flow(librus_api: Librus, slack_api: SlackClient, last_notice_time, ch
             last_notice_time = notice.time
 
             message = f"*Nowe ogłoszenie:*\n{notice.subject}\n" \
-                      f"``:`{notice.content}```\n" \
+                      f"```{notice.content}```\n" \
                       f"Autorem jest {notice.teacher.first_name} {notice.teacher.last_name}"
 
             for ch in channel_list:
@@ -114,8 +114,15 @@ if __name__ == '__main__':
         config = json.load(file)
         config = Config(**config)
 
-    sc = SlackClient(os.environ["SLACK_TOKEN"])
-    lib = Librus(os.environ["LIBRUS_TOKEN"])
+    with open("creds.json") as file:
+        creds = json.load(file)
+
+    librus_token = get_token(creds["login"], creds["password"])
+    if librus_token:
+        print("got token")
+
+    sc = SlackClient(creds["slack_token"])
+    lib = Librus(librus_token)
 
     if sc.rtm_connect():
         print("Slack connected")
@@ -139,10 +146,11 @@ if __name__ == '__main__':
                 sc.rtm_send_message(ch, message)
 
         # handle messages
-        last_message = message_flow(lib, sc, config.channel_map, last_message)
+        # last_message = message_flow(lib, sc, config.channel_map, last_message)
+        # messages have to be disabled for now. I have no idea how to get a message-handling token
 
         new_time_data = {}
-        new_time_data["last_message"] = last_message.timestamp()
+        # new_time_data["last_message"] = last_message.timestamp()
         new_time_data["last_notice"] = last_notice.timestamp()
         new_time_data["last_lucky_number"] = last_lucky_number.timestamp()
         with open("last_update_times.json", "w") as file:
