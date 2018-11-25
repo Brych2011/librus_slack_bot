@@ -136,8 +136,8 @@ if __name__ == '__main__':
 
         # handle lucky number
         lucky_num = lib.get_lucky_number()
-        archive_lucky_number(lucky_num["number"], config.archive_path)
         if lucky_num["date"] > last_lucky_number:
+            archive_lucky_number(lucky_num["number"], config.archive_path)
             last_lucky_number = lucky_num["date"]
 
             pretty_date = lucky_num["date"].strftime("%d-%m-%Y")
