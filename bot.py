@@ -22,12 +22,12 @@ import datetime
 
 
 def archive_notice(notice: Notice, archive_path):
-    fname = datetime.datetime.now().strftime("%Y-%m-%d") + "_" + notice.subject
-    if os.path.exists(archive_path + fname):
+    fname = os.path.join(archive_path, datetime.datetime.now().strftime("%Y-%m-%d") + "_" + notice.subject)
+    if os.path.exists(os.path.join(archive_path, fname)):
         i = 2
-        while os.path.exists(archive_path + fname + str(i)):
+        while os.path.exists(os.path.join(archive_path, fname + str(i))):
             i += 1
-        fname = archive_path + fname + str(i)
+        fname = os.path.join(archive_path, fname + str(i))
 
     with open(fname, 'w') as file:
         file.write(notice.subject)
