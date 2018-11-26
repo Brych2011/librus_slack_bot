@@ -103,7 +103,7 @@ class Config:
     notice_channels: List[str]
 
 
-if __name__ == '__main__':
+def main():
     with open("last_update_times.json") as file:
         time_data = json.load(file)
         last_message = datetime.datetime.fromtimestamp(time_data["last_message"])
@@ -126,10 +126,10 @@ if __name__ == '__main__':
 
     if sc.rtm_connect():
         print("Slack connected")
-        # bot_id = sc.api_call("api.test")["user_id"]
 
     while True:
         print("flow begins")
+        bot_id = sc.api_call("api.test")["user_id"]
 
         try:
             # handle notices
@@ -164,3 +164,17 @@ if __name__ == '__main__':
         print("times_updated")
 
         time.sleep(120)
+
+
+if __name__ == '__main__':
+    start = time.time()
+    while True:
+        try:
+            main()
+        except Exception as e:
+            with open("crash_report.log") as file:
+                pretty_date = datetime.datetime.now().strftime('%d-%m-%Y')
+                uptime = (time.time() - start) / 3600
+                file.write(f"{pretty_date} - crashed after {uptime}h of uptime. Error message:\n")
+                file.write(repr(e))
+
