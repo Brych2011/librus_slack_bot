@@ -3,7 +3,8 @@ import os
 import time
 
 from librus_api import Librus, get_token
-from librus_api import Notice, Message
+from librus_api import Notice, Message, TokenExpiredException
+
 
 from dataclasses import dataclass
 from typing import List, Dict
@@ -102,7 +103,6 @@ class Config:
     notice_channels: List[str]
 
 
-
 if __name__ == '__main__':
     with open("last_update_times.json") as file:
         time_data = json.load(file)
@@ -131,11 +131,18 @@ if __name__ == '__main__':
     while True:
         print("flow begins")
 
-        # handle notices
-        last_notice = notice_flow(lib, sc, last_notice, config.notice_channels, archive_path=config.archive_path)
+        try:
+            # handle notices
+            last_notice = notice_flow(lib, sc, last_notice, config.notice_channels, archive_path=config.archive_path)
+            # last_message = message_flow(lib, sc, config.channel_map, last_message)
+            lucky_num = lib.get_lucky_number()
+        except TokenExpiredException:
+            new_token = get_token(creds["login"], creds["password"])
+            lib.token = new_token
+            continue
+
 
         # handle lucky number
-        lucky_num = lib.get_lucky_number()
         if lucky_num["date"] > last_lucky_number:
             archive_lucky_number(lucky_num["number"], config.archive_path)
             last_lucky_number = lucky_num["date"]
@@ -146,7 +153,6 @@ if __name__ == '__main__':
                 sc.rtm_send_message(ch, message)
 
         # handle messages
-        # last_message = message_flow(lib, sc, config.channel_map, last_message)
         # messages have to be disabled for now. I have no idea how to get a message-handling token
 
         new_time_data = {}
